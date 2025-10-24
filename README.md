@@ -1,73 +1,30 @@
-# React + TypeScript + Vite
+# Rex86 (Register Expert x86)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Info
+**Author: Diego Borgo**
 
-Currently, two official plugins are available:
+**ASU Barrett Honors Thesis**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Goals
+- Create a learning companion that assists students with helpful tips and steps to recreate class curriculum activities.
+- Integrate within the x86 emulator, to accompany the user as they experiment.
+- Provide information about what is happening on the screen or lesson plans to follow to recreate lecture ideas from class.
+- Offer supplementary assistance to help students learn in CSE 230 even quicker.
+- Serve as a blueprint for a useful add-on to any future web services that may be integrated with class curriculum.
 
-## React Compiler
+## Implementation Goals
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Communicate with CSE 230 professors and interact with the course curriculum to understand what assistance students need while using the emulator.
+- Research and plan tech stack and development steps to implement the companion.
+- Develop the companion alongside the emulator, integrating it as necessary but ensuring it stays as a standalone tool that can be enabled or disabled.
+- Complete and advertise the companion as a tool to help CSE 230 students further.
+- Explore possibility of refactoring code for any other classes that may need it.
+- Present and defend the companion as my Honors Thesis.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Tech Stack
+- Frontend
+  - React + TypeScript + Zustand
+  - HTML + CSS + Java
+- Backend
+  - AWS: S3, DynamoDB, Lambda, etc.
+  - OpenAI Integration if necessary
