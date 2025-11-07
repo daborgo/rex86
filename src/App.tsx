@@ -4,18 +4,14 @@ import { OPENAI_API_KEY } from './key'
 
 type Message = { id: string; text: string; sender: 'user' | 'bot' }
 
-// Paste your OpenAI key here (or keep empty to use the local "Hello!" fallback)
-
 function App() {
   const [messages, setMessages] = useState<Message[]>([])
   const messagesRef = useRef<Message[]>(messages)
   const [input, setInput] = useState('')
-  // removed apiKey / unsavedKey UI state
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const inFlightAbort = useRef<AbortController | null>(null)
 
-  // keep ref in sync so we always build conversation from the latest messages
   useEffect(() => {
     messagesRef.current = messages
   }, [messages])
@@ -29,13 +25,11 @@ function App() {
   }
 
   async function callOpenAI(key: string, conversation: Message[]): Promise<string> {
-    // Map to Chat API schema
     const apiMessages = conversation.map((m) => ({
       role: m.sender === 'user' ? 'user' : 'assistant',
       content: m.text,
     }))
 
-    // include a minimal system prompt to encourage helpful responses
     apiMessages.unshift({ role: 'system', content: `
       You are an assistant designed to help a university student in their
       Computer Organization and Assembly Language class. You are part of a web
@@ -49,7 +43,6 @@ function App() {
       giving them the answer, if needed.
     `})
 
-    // cancel previous request if any
     if (inFlightAbort.current) {
       inFlightAbort.current.abort()
     }
@@ -96,14 +89,11 @@ function App() {
 
     const userMsg: Message = { id: makeId(), text, sender: 'user' }
 
-    // add user message and keep ref updated
     const nextConversation = [...messagesRef.current, userMsg]
-    // update state/ref immediately with the same array
     setMessages(nextConversation)
     messagesRef.current = nextConversation
     setInput('')
 
-    // If no hardcoded API key, fallback to simple Hello!
     if (!OPENAI_API_KEY) {
       const botMsg: Message = { id: makeId(), text: 'Error: No API key.', sender: 'bot' }
       setMessages((prev) => {
@@ -116,7 +106,6 @@ function App() {
 
     setLoading(true)
 
-    // Build conversation from the ref (includes the user message just added)
     const conversationForApi = nextConversation
 
     const reply = await callOpenAI(OPENAI_API_KEY, conversationForApi)
@@ -142,8 +131,6 @@ function App() {
     setLoading(false)
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
-
-  // removed saveKey / removeKey functions
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') send()
