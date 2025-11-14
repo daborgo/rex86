@@ -11,6 +11,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const inFlightAbort = useRef<AbortController | null>(null)
+  const [activeTab, setActiveTab] = useState<'chat' | 'class'>('chat')
 
   useEffect(() => {
     messagesRef.current = messages
@@ -30,7 +31,9 @@ function App() {
       content: m.text,
     }))
 
-    apiMessages.unshift({ role: 'system', content: `
+    apiMessages.unshift({
+      role: 'system',
+      content: `
       You are an assistant designed to help a university student in their
       Computer Organization and Assembly Language class. You are part of a web
       x86 Emulator that is designed with an Assembly Editor, Console, and Registers
@@ -41,7 +44,8 @@ function App() {
       no matter what the student's prompt is. You can also (sparingly) end messages with leading
       questions to try and help the student consider the correct answer rather than
       giving them the answer, if needed.
-    `})
+    `,
+    })
 
     if (inFlightAbort.current) {
       inFlightAbort.current.abort()
@@ -136,44 +140,163 @@ function App() {
     if (e.key === 'Enter') send()
   }
 
+  // placeholder faqs
+  type Section = 'background' | 'instructions' | 'emulator'
+  const [classSection, setClassSection] = useState<Section>('background')
+
+  type FAQ = { q: string; a: string; showMe?: boolean }
+  const faqsBySection: Record<Section, FAQ[]> = {
+    background: [
+      {
+        q: 'What is assembly language?',
+        a: 'Assembly language is a low-level programming language that maps closely to machine code instructions for a CPU.',
+      },
+      {
+        q: 'Why learn computer organization?',
+        a: 'Understanding computer organization helps you reason about performance, debugging, and how high-level code maps to hardware behavior.',
+      },
+    ],
+    instructions: [
+      {
+        q: 'How do I run a program in the emulator?',
+        a: 'Open the editor, assemble the code, then use the Run controls in the emulator panel. Watch the Console for output and the Registers panel for changes.',
+        showMe: true,
+      },
+      {
+        q: 'How do I step through instructions?',
+        a: 'Use Step / Next controls in the emulator. Each instruction will update registers and memory—observe the changes after each step.',
+        showMe: true,
+      },
+      {
+        q: 'How do I format assembly for the editor?',
+        a: 'Use standard x86 mnemonics and comments. Keep labels on their own line and align operands for readability.',
+      },
+    ],
+    emulator: [
+      {
+        q: 'What are some examples of x86 instructions?',
+        a: 'Some instructions move data such as ADD, SUB (subtract), and MOV (move), and some tell the machine how to navigate like JMP (jump), CALL, and etc.',
+        showMe: true,
+      },
+      {
+        q: 'What does the Registers panel show?',
+        a: 'Registers show current CPU register values (e.g., EAX, EBX) and flags—useful for tracking program state.',
+      },
+      {
+        q: 'How is memory represented?',
+        a: 'Memory is displayed as a linear address space; you can inspect addresses, watch variables, and see stack frames during execution.',
+      },
+    ],
+  }
+
   return (
-    <div className="chat-container">
-      <div className="chat-header">
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-          <button className="clear-button" onClick={clearAll} aria-label="Clear messages">
-            Clear
-          </button>
-        </div>
-      </div>
-
-      <div className="messages" role="log" aria-live="polite">
-        {messages.length === 0 ? (
-          <div className="no-messages">Enter a chat message below...</div>
-        ) : (
-          messages.map((m) => (
-            <div key={m.id} className={`message ${m.sender === 'user' ? 'user' : 'bot'}`}>
-              {m.text}
-            </div>
-          ))
-        )}
-        {loading && <div className="message bot">...</div>}
-        <div ref={messagesEndRef} />
-      </div>
-
-      <div className="chat-input-row">
-        <input
-          className="chat-input"
-          type="text"
-          value={input}
-          placeholder="Type a message..."
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={onKeyDown}
-          aria-label="Message"
-        />
-        <button className="send-button" onClick={send} disabled={loading}>
-          {loading ? 'Sending...' : 'Send'}
+    <div>
+      <div className="tabs" role="tablist" aria-label="Chat and Class tabs">
+        <button
+          className={`tab ${activeTab === 'chat' ? 'active' : ''}`}
+          onClick={() => setActiveTab('chat')}
+          role="tab"
+          aria-selected={activeTab === 'chat'}
+        >
+          Chat
+        </button>
+        <button
+          className={`tab ${activeTab === 'class' ? 'active' : ''}`}
+          onClick={() => setActiveTab('class')}
+          role="tab"
+          aria-selected={activeTab === 'class'}
+        >
+          Class
         </button>
       </div>
+
+      {activeTab === 'chat' ? (
+        <div className="chat-container">
+          <div className="chat-header">
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="clear-button" onClick={clearAll} aria-label="Clear messages">
+                Clear
+              </button>
+            </div>
+          </div>
+
+          <div className="messages" role="log" aria-live="polite">
+            {messages.length === 0 ? (
+              <div className="no-messages">Enter a chat message below...</div>
+            ) : (
+              messages.map((m) => (
+                <div key={m.id} className={`message ${m.sender === 'user' ? 'user' : 'bot'}`}>
+                  {m.text}
+                </div>
+              ))
+            )}
+            {loading && <div className="message bot">...</div>}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="chat-input-row">
+            <input
+              className="chat-input"
+              type="text"
+              value={input}
+              placeholder="Type a message..."
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={onKeyDown}
+              aria-label="Message"
+            />
+            <button className="send-button" onClick={send} disabled={loading}>
+              {loading ? 'Sending...' : 'Send'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="chat-container">
+          <h2 style={{ textAlign: 'left' }}>Class</h2>
+
+          <nav className="class-nav" aria-label="Class sections">
+            <button
+              className={classSection === 'background' ? 'active' : ''}
+              onClick={() => setClassSection('background')}
+            >
+              Background
+            </button>
+            <button
+              className={classSection === 'instructions' ? 'active' : ''}
+              onClick={() => setClassSection('instructions')}
+            >
+              Instructions
+            </button>
+            <button
+              className={classSection === 'emulator' ? 'active' : ''}
+              onClick={() => setClassSection('emulator')}
+            >
+              Emulator
+            </button>
+          </nav>
+
+          <div className="messages class-section" role="region" aria-live="polite">
+            {faqsBySection[classSection].map((f, i) => (
+              <div key={i} className="faq-row" style={{ textAlign: 'left', padding: '0.5rem 0' }}>
+                <div style={{ flex: 1 }}>
+                  <strong>{f.q}</strong>
+                  <div style={{ marginTop: 4 }}>{f.a}</div>
+                </div>
+                {f.showMe && (
+                  <button
+                    className="showme-button"
+                    onClick={() => {
+                      /* placeholder */
+                    }}
+                    aria-label={`Show me: ${f.q}`}
+                  >
+                    Show Me
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
