@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import './App.css'
 import { OPENAI_API_KEY } from './key'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 type Message = { id: string; text: string; sender: 'user' | 'bot' }
 
@@ -226,7 +228,9 @@ function App() {
             ) : (
               messages.map((m) => (
                 <div key={m.id} className={`message ${m.sender === 'user' ? 'user' : 'bot'}`}>
-                  {m.text}
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {m.text}
+                  </ReactMarkdown>
                 </div>
               ))
             )}
